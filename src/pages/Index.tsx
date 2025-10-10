@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -29,14 +29,6 @@ interface NewsItem {
   image?: string;
 }
 
-interface VKPost {
-  id: number;
-  text: string;
-  date: number;
-  url: string;
-  image: string;
-}
-
 const Index = () => {
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -51,10 +43,30 @@ const Index = () => {
   const [selectedClass, setSelectedClass] = useState('5');
   const [news, setNews] = useState<NewsItem[]>([]);
   const [isLoadingNews, setIsLoadingNews] = useState(true);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
 
   useEffect(() => {
     setIsLoadingNews(false);
   }, []);
+
+  const speakText = (text: string) => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'ru-RU';
+      utterance.rate = 1.0;
+      utterance.pitch = 1.0;
+      
+      utterance.onstart = () => setIsSpeaking(true);
+      utterance.onend = () => setIsSpeaking(false);
+      utterance.onerror = () => setIsSpeaking(false);
+      
+      speechRef.current = utterance;
+      window.speechSynthesis.speak(utterance);
+    }
+  };
 
   const schedulesByClass: Record<string, Record<string, ScheduleItem[]>> = {
     '5': {
@@ -188,6 +200,7 @@ const Index = () => {
       };
       
       setMessages(prev => [...prev, globertResponse]);
+      speakText(globertResponse.text);
     } catch (error) {
       console.error('Ошибка:', error);
       const globertResponse: Message = {
@@ -197,6 +210,7 @@ const Index = () => {
         timestamp: new Date()
       };
       setMessages(prev => [...prev, globertResponse]);
+      speakText(globertResponse.text);
     }
   };
 
@@ -236,22 +250,43 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-sky-50 to-blue-100">
-      <div className="container mx-auto p-4 md:p-6 max-w-7xl">
-        <header className="mb-8 text-center animate-fade-in">
-          <div className="flex items-center justify-center gap-4 mb-2">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-sky-50 to-blue-100 flex">
+      <div className="w-1/3 min-h-screen bg-gradient-to-b from-blue-600 to-sky-500 flex items-center justify-center relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-1/4 left-1/4 w-32 h-32 bg-white rounded-full animate-pulse"></div>
+          <div className="absolute bottom-1/3 right-1/4 w-24 h-24 bg-white rounded-full animate-pulse delay-700"></div>
+        </div>
+        
+        <div className="relative z-10 flex flex-col items-center">
+          <div className={`transition-transform duration-500 ${isSpeaking ? 'scale-110' : 'scale-100'}`}>
             <img 
               src="https://cdn.poehali.dev/files/02c3f99f-1b97-42f4-9400-d56b4033d447.png" 
               alt="Глоберт" 
-              className="w-24 h-24 object-contain"
+              className={`w-96 h-96 object-contain drop-shadow-2xl ${isSpeaking ? 'animate-bounce' : ''}`}
             />
-            <div>
-              <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-600 to-sky-500 bg-clip-text text-transparent">
-                Глоберт
-              </h1>
-              <p className="text-gray-600 text-lg">ИИ-помощник школы Global 34</p>
-            </div>
           </div>
+          <div className="mt-8 text-center">
+            <h2 className="text-4xl font-bold text-white mb-2">Глоберт</h2>
+            <p className="text-white/90 text-xl">Твой ИИ-помощник</p>
+            {isSpeaking && (
+              <div className="mt-4 flex gap-1 justify-center">
+                <div className="w-2 h-8 bg-white rounded-full animate-pulse"></div>
+                <div className="w-2 h-12 bg-white rounded-full animate-pulse delay-100"></div>
+                <div className="w-2 h-10 bg-white rounded-full animate-pulse delay-200"></div>
+                <div className="w-2 h-14 bg-white rounded-full animate-pulse delay-300"></div>
+                <div className="w-2 h-8 bg-white rounded-full animate-pulse delay-100"></div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="flex-1 p-4 md:p-6">
+        <header className="mb-6 text-center animate-fade-in">
+          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-600 to-sky-500 bg-clip-text text-transparent">
+            Школа Global 34
+          </h1>
+          <p className="text-gray-600 text-lg mt-2">Умная платформа для учеников</p>
         </header>
 
         <Tabs defaultValue="chat" className="w-full">
