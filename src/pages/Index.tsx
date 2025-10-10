@@ -40,7 +40,7 @@ const Index = () => {
   ]);
   const [inputMessage, setInputMessage] = useState('');
   const [activeDay, setActiveDay] = useState('понедельник');
-  const [selectedClass, setSelectedClass] = useState('5');
+  const [selectedClass, setSelectedClass] = useState('5А');
   const [news, setNews] = useState<NewsItem[]>([]);
   const [isLoadingNews, setIsLoadingNews] = useState(true);
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -56,8 +56,17 @@ const Index = () => {
       
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = 'ru-RU';
-      utterance.rate = 1.0;
-      utterance.pitch = 1.0;
+      utterance.rate = 0.95;
+      utterance.pitch = 1.1;
+      
+      const voices = window.speechSynthesis.getVoices();
+      const russianVoice = voices.find(voice => 
+        voice.lang === 'ru-RU' && (voice.name.includes('Google') || voice.name.includes('Yandex') || voice.name.includes('Milena'))
+      ) || voices.find(voice => voice.lang === 'ru-RU');
+      
+      if (russianVoice) {
+        utterance.voice = russianVoice;
+      }
       
       utterance.onstart = () => setIsSpeaking(true);
       utterance.onend = () => setIsSpeaking(false);
@@ -225,7 +234,18 @@ const Index = () => {
 
   const displayNews = news.length > 0 ? news : mockNews;
 
-  const classes = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11'];
+  const classes = [
+    '1А', '1Б', '1В', '1Г', '1Д', '1Е', '1Ж',
+    '2А', '2Б', '2В', '2Г', '2Д', '2Е',
+    '3А', '3Б', '3В', '3Г', '3Д', '3Е',
+    '4А', '4Б', '4В', '4Г', '4Д', '4Е',
+    '5А', '5Б', '5В', '5Г', '5Д', '5Е',
+    '6А', '6Б', '6В', '6Г', '6Д', '6Е',
+    '7А', '7Б', '7В', '7Г', '7Д', '7Е',
+    '8А', '8Б', '8В', '8Г', '8Д', '8Е',
+    '9А', '9Б', '9В', '9Г', '9Д', '9Е',
+    '10А', '10Б', '11А', '11Б'
+  ];
 
   const getGlobertResponse = (question: string): string => {
     const lowerQuestion = question.toLowerCase();
@@ -262,7 +282,7 @@ const Index = () => {
             <img 
               src="https://cdn.poehali.dev/files/02c3f99f-1b97-42f4-9400-d56b4033d447.png" 
               alt="Глоберт" 
-              className={`w-96 h-96 object-contain drop-shadow-2xl ${isSpeaking ? 'animate-pulse' : ''}`}
+              className={`w-[500px] h-[500px] object-contain drop-shadow-2xl ${isSpeaking ? 'animate-pulse' : ''}`}
             />
           </div>
           <div className="mt-8 text-center">
@@ -283,10 +303,19 @@ const Index = () => {
 
       <div className="flex-1 p-4 md:p-6">
         <header className="mb-6 text-center animate-fade-in">
-          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-600 to-sky-500 bg-clip-text text-transparent">
-            Школа Global 34
-          </h1>
-          <p className="text-gray-600 text-lg mt-2">Умная платформа для учеников</p>
+          <div className="flex items-center justify-center gap-4 mb-2">
+            <img 
+              src="https://cdn.poehali.dev/files/a62bbaa2-f9d9-45cf-bc85-68c09311e8f1.png" 
+              alt="Логотип Global 34" 
+              className="w-16 h-16 object-contain"
+            />
+            <div>
+              <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-600 to-sky-500 bg-clip-text text-transparent">
+                Школа Global 34
+              </h1>
+              <p className="text-gray-600 text-lg mt-1">Умная платформа для учеников</p>
+            </div>
+          </div>
         </header>
 
         <Tabs defaultValue="chat" className="w-full">
@@ -376,13 +405,13 @@ const Index = () => {
               <CardContent className="p-6">
                 <div className="mb-6">
                   <label className="block text-sm font-semibold text-gray-700 mb-3">Выберите класс:</label>
-                  <div className="grid grid-cols-6 md:grid-cols-11 gap-2 mb-6">
+                  <div className="grid grid-cols-7 gap-2 mb-6">
                     {classes.map((cls) => (
                       <Button
                         key={cls}
                         onClick={() => setSelectedClass(cls)}
                         variant={selectedClass === cls ? 'default' : 'outline'}
-                        className={`h-12 ${selectedClass === cls ? 'bg-gradient-to-r from-blue-600 to-sky-500 text-white' : 'hover:bg-blue-50'}`}
+                        className={`h-10 text-sm ${selectedClass === cls ? 'bg-gradient-to-r from-blue-600 to-sky-500 text-white' : 'hover:bg-blue-50'}`}
                       >
                         {cls}
                       </Button>
