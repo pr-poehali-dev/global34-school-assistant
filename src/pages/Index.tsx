@@ -258,11 +258,11 @@ const Index = () => {
         </div>
         
         <div className="relative z-10 flex flex-col items-center">
-          <div className={`transition-transform duration-500 ${isSpeaking ? 'scale-110' : 'scale-100'}`}>
+          <div className={`transition-all duration-200 ${isSpeaking ? 'scale-105' : 'scale-100'}`}>
             <img 
               src="https://cdn.poehali.dev/files/02c3f99f-1b97-42f4-9400-d56b4033d447.png" 
               alt="Глоберт" 
-              className={`w-96 h-96 object-contain drop-shadow-2xl ${isSpeaking ? 'animate-bounce' : ''}`}
+              className={`w-96 h-96 object-contain drop-shadow-2xl ${isSpeaking ? 'animate-pulse' : ''}`}
             />
           </div>
           <div className="mt-8 text-center">
