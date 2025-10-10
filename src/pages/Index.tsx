@@ -92,22 +92,10 @@ const Index = () => {
 
       <div className="flex-1 p-4 md:p-6">
         <header className="mb-6 text-center animate-fade-in">
-          <div className="flex items-center justify-center gap-4 mb-2">
-            <div className="w-24 h-24 flex items-center justify-center">
-              <img 
-                src="https://cdn.poehali.dev/files/a62bbaa2-f9d9-45cf-bc85-68c09311e8f1.png" 
-                alt="Логотип Global 34" 
-                className="w-full h-full object-contain"
-                style={{ filter: 'drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1))' }}
-              />
-            </div>
-            <div>
-              <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-600 to-sky-500 bg-clip-text text-transparent">
-                Школа Global 34
-              </h1>
-              <p className="text-gray-600 text-lg mt-1">Умная платформа для учеников</p>
-            </div>
-          </div>
+          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-600 to-sky-500 bg-clip-text text-transparent">
+            Школа Global 34
+          </h1>
+          <p className="text-gray-600 text-lg mt-2">Умная платформа для учеников</p>
         </header>
 
         <Tabs defaultValue="chat" className="w-full">
