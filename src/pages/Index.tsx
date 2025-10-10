@@ -228,19 +228,6 @@ const Index = () => {
     return 'Спасибо за вопрос! Я помогу тебе с информацией о школе, расписании уроков, кружках и мероприятиях. Что именно тебя интересует?';
   };
 
-  const formatDate = (timestamp: number): string => {
-    const date = new Date(timestamp * 1000);
-    return date.toLocaleDateString('ru-RU', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
-    });
-  };
-
-  const displayNews = news.length > 0 ? news : mockNews;
-
-  const classes = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11'];
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-sky-50 to-blue-100">
       <div className="container mx-auto p-4 md:p-6 max-w-7xl">
