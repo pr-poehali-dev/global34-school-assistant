@@ -9,80 +9,47 @@ import { useChat } from '@/hooks/useChat';
 import { useVoiceRecognition } from '@/hooks/useVoiceRecognition';
 import { schedulesByClass, classes } from '@/data/scheduleData';
 
-interface NewsItem {
+interface EventItem {
   id: number;
-  text: string;
-  date: number;
-  url: string;
-  image?: string;
+  title: string;
+  date: string;
 }
 
 const Index = () => {
   const [inputMessage, setInputMessage] = useState('');
   const [activeDay, setActiveDay] = useState('понедельник');
   const [selectedClass, setSelectedClass] = useState('5А');
-  const [news, setNews] = useState<NewsItem[]>([]);
-  const [isLoadingNews, setIsLoadingNews] = useState(true);
+  const [events] = useState<EventItem[]>([
+    { id: 1, title: 'День добра и уважения', date: '1 октября' },
+    { id: 2, title: 'День музыки', date: '2 октября' },
+    { id: 3, title: 'День Учителя', date: '3 октября' },
+    { id: 4, title: 'День защиты животных', date: '6 октября' },
+    { id: 5, title: 'Всероссийский день чтения', date: '9 октября' },
+    { id: 6, title: 'День отца', date: '15 октября' },
+    { id: 7, title: 'Дискотека Мистер РГ', date: '24 октября' },
+    { id: 8, title: 'Декада подростка. Закон', date: '20-25 октября' },
+    { id: 9, title: 'Международный день школьных библиотек', date: '27 октября' },
+    { id: 10, title: 'Спектакль', date: '3 ноября' },
+    { id: 11, title: 'День народного единства', date: '4 ноября' },
+    { id: 12, title: 'День против фашизма, расизма и антисемитизма', date: '10 ноября' },
+    { id: 13, title: '295 лет со дня рождения А.В. Суворова', date: '13 ноября' },
+    { id: 14, title: 'День ракетных войск и артиллерии', date: '19 ноября' },
+    { id: 15, title: '255 лет со дня рождения И.Ф. Крузенштерна', date: '19 ноября' }
+  ]);
 
   const { messages, userName, handleSendMessage, clearHistory } = useChat();
   const { isListening, startVoiceRecognition } = useVoiceRecognition((transcript) => {
     setInputMessage(transcript);
   });
 
-  useEffect(() => {
-    fetchVKNews();
-  }, []);
 
-  const fetchVKNews = async () => {
-    setIsLoadingNews(true);
-    try {
-      const response = await fetch('https://api.vk.com/method/wall.get?domain=sc34global&count=10&access_token=&v=5.131');
-      const data = await response.json();
-      
-      if (data.response && data.response.items) {
-        const newsItems: NewsItem[] = data.response.items.slice(0, 5).map((item: any) => ({
-          id: item.id,
-          text: item.text,
-          date: item.date,
-          url: `https://vk.com/sc34global?w=wall-${Math.abs(item.owner_id)}_${item.id}`,
-          image: item.attachments?.[0]?.photo?.sizes?.[item.attachments[0].photo.sizes.length - 1]?.url
-        }));
-        setNews(newsItems);
-      }
-    } catch (error) {
-      console.error('Ошибка загрузки новостей:', error);
-      setNews([
-        {
-          id: 1,
-          text: 'Приглашаем всех учеников принять участие в школьной олимпиаде по математике. Регистрация открыта до 20 октября.',
-          date: Date.now() / 1000,
-          url: 'https://vk.com/sc34global'
-        },
-        {
-          id: 2,
-          text: '25 октября в нашей школе пройдет День открытых дверей для будущих учеников и их родителей. Начало в 10:00.',
-          date: Date.now() / 1000,
-          url: 'https://vk.com/sc34global'
-        }
-      ]);
-    } finally {
-      setIsLoadingNews(false);
-    }
-  };
 
   const handleSend = () => {
     handleSendMessage(inputMessage);
     setInputMessage('');
   };
 
-  const formatDate = (timestamp: number): string => {
-    const date = new Date(timestamp * 1000);
-    return date.toLocaleDateString('ru-RU', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
-    });
-  };
+
 
   const schedule = schedulesByClass[selectedClass] || schedulesByClass['5А'];
 
@@ -108,9 +75,9 @@ const Index = () => {
               <Icon name="Calendar" size={20} className="mr-2" />
               Расписание
             </TabsTrigger>
-            <TabsTrigger value="news" className="text-base data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-sky-500 data-[state=active]:text-white">
-              <Icon name="Newspaper" size={20} className="mr-2" />
-              Новости
+            <TabsTrigger value="events" className="text-base data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-sky-500 data-[state=active]:text-white">
+              <Icon name="Calendar" size={20} className="mr-2" />
+              Мероприятия
             </TabsTrigger>
           </TabsList>
 
@@ -138,11 +105,9 @@ const Index = () => {
             />
           </TabsContent>
 
-          <TabsContent value="news" className="animate-fade-in">
+          <TabsContent value="events" className="animate-fade-in">
             <NewsTab
-              news={news}
-              isLoadingNews={isLoadingNews}
-              formatDate={formatDate}
+              events={events}
             />
           </TabsContent>
         </Tabs>

@@ -1,72 +1,48 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 
-interface NewsItem {
+interface EventItem {
   id: number;
-  text: string;
-  date: number;
-  url: string;
-  image?: string;
+  title: string;
+  date: string;
 }
 
 interface NewsTabProps {
-  news: NewsItem[];
-  isLoadingNews: boolean;
-  formatDate: (timestamp: number) => string;
+  events: EventItem[];
 }
 
-const NewsTab = ({ news, isLoadingNews, formatDate }: NewsTabProps) => {
+const NewsTab = ({ events }: NewsTabProps) => {
   return (
     <Card className="shadow-xl border-0">
       <CardHeader className="bg-gradient-to-r from-blue-600 to-sky-500 text-white">
         <CardTitle className="flex items-center gap-2">
-          <Icon name="Newspaper" size={24} />
-          Школьные новости
+          <Icon name="Calendar" size={24} />
+          Школьные мероприятия
         </CardTitle>
       </CardHeader>
       <CardContent className="p-6">
-        {isLoadingNews ? (
-          <div className="text-center py-8">
-            <Icon name="Loader2" className="animate-spin mx-auto text-blue-600" size={32} />
-            <p className="text-gray-600 mt-2">Загрузка новостей...</p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {news.map((item) => (
-              <Card key={item.id} className="hover:shadow-md transition-all duration-300 hover-scale border border-gray-200">
-                <CardContent className="p-5">
-                  <div className="flex gap-4">
-                    {item.image && (
-                      <img 
-                        src={item.image} 
-                        alt="Новость" 
-                        className="w-24 h-24 object-cover rounded-lg flex-shrink-0"
-                      />
-                    )}
-                    <div className="flex-1">
-                      <p className="text-gray-700 mb-3 leading-relaxed">{item.text}</p>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2 text-sm text-gray-500">
-                          <Icon name="Clock" size={16} className="text-blue-600" />
-                          <span>{formatDate(item.date)}</span>
-                        </div>
-                        <a 
-                          href={item.url} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center gap-1"
-                        >
-                          Читать в VK
-                          <Icon name="ExternalLink" size={14} />
-                        </a>
-                      </div>
+        <div className="space-y-3">
+          {events.map((event) => (
+            <Card key={event.id} className="hover:shadow-md transition-all duration-300 hover-scale border border-gray-200">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-4">
+                  <div className="flex-shrink-0">
+                    <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-sky-500 rounded-xl flex items-center justify-center shadow-md">
+                      <Icon name="CalendarDays" size={28} className="text-white" />
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
+                  <div className="flex-1">
+                    <h3 className="font-bold text-lg text-gray-800 mb-1">{event.title}</h3>
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <Icon name="Clock" size={16} className="text-blue-600" />
+                      <span className="font-medium">{event.date}</span>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </CardContent>
     </Card>
   );
