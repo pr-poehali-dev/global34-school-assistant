@@ -122,7 +122,7 @@ export const useChat = () => {
       console.error('Ошибка:', error);
       const globertResponse: Message = {
         id: messages.length + 2,
-        text: getGlobertResponse(inputMessage),
+        text: `${userName ? `${userName}, ` : ''}извини, пожалуйста, но сейчас у меня проблемы с подключением. Попробуй задать вопрос позже!`,
         sender: 'globert',
         timestamp: new Date()
       };
