@@ -85,20 +85,28 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         'Authorization': f'Bearer {openai_key}'
     }
     
-    req = urllib.request.Request(
-        'https://api.openai.com/v1/chat/completions',
-        data=json.dumps(payload).encode('utf-8'),
-        headers=headers,
-        method='POST'
-    )
+    try:
+        req = urllib.request.Request(
+            'https://api.openai.com/v1/chat/completions',
+            data=json.dumps(payload).encode('utf-8'),
+            headers=headers,
+            method='POST'
+        )
+        
+        with urllib.request.urlopen(req) as response:
+            data = json.loads(response.read().decode('utf-8'))
+        
+        if 'choices' in data and len(data['choices']) > 0:
+            reply = data['choices'][0]['message']['content']
+        else:
+            reply = 'Извини, не могу ответить прямо сейчас. Попробуй позже!'
     
-    with urllib.request.urlopen(req) as response:
-        data = json.loads(response.read().decode('utf-8'))
-    
-    if 'choices' in data and len(data['choices']) > 0:
-        reply = data['choices'][0]['message']['content']
-    else:
-        reply = 'Извини, не могу ответить прямо сейчас. Попробуй позже!'
+    except Exception as e:
+        error_msg = str(e)
+        if '403' in error_msg or 'Forbidden' in error_msg:
+            reply = 'API ключ OpenAI не настроен или неверный. Добавь ключ в секреты проекта.'
+        else:
+            reply = 'Извини, произошла ошибка. Попробуй позже!'
     
     return {
         'statusCode': 200,
