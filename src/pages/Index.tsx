@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,10 +23,18 @@ interface ScheduleItem {
 
 interface NewsItem {
   id: number;
-  title: string;
-  date: string;
-  content: string;
-  category: string;
+  text: string;
+  date: number;
+  url: string;
+  image?: string;
+}
+
+interface VKPost {
+  id: number;
+  text: string;
+  date: number;
+  url: string;
+  image: string;
 }
 
 const Index = () => {
@@ -40,8 +48,29 @@ const Index = () => {
   ]);
   const [inputMessage, setInputMessage] = useState('');
   const [activeDay, setActiveDay] = useState('понедельник');
+  const [selectedClass, setSelectedClass] = useState('5');
+  const [news, setNews] = useState<NewsItem[]>([]);
+  const [isLoadingNews, setIsLoadingNews] = useState(true);
 
-  const schedule: Record<string, ScheduleItem[]> = {
+  useEffect(() => {
+    const fetchNews = async () => {
+      try {
+        const response = await fetch('https://functions.poehali.dev/72b4d458-f810-44f5-b820-942bf9d44bc2');
+        const data = await response.json();
+        if (data.posts && Array.isArray(data.posts)) {
+          setNews(data.posts);
+        }
+      } catch (error) {
+        console.error('Ошибка загрузки новостей:', error);
+      } finally {
+        setIsLoadingNews(false);
+      }
+    };
+    fetchNews();
+  }, []);
+
+  const schedulesByClass: Record<string, Record<string, ScheduleItem[]>> = {
+    '5': {
     понедельник: [
       { time: '08:30 - 09:15', subject: 'Математика', teacher: 'Иванова А.С.', room: '201' },
       { time: '09:25 - 10:10', subject: 'Русский язык', teacher: 'Петрова М.В.', room: '305' },
@@ -76,37 +105,66 @@ const Index = () => {
       { time: '10:25 - 11:10', subject: 'История', teacher: 'Козлова Е.А.', room: '208' },
       { time: '11:25 - 12:10', subject: 'Физкультура', teacher: 'Федоров А.А.', room: 'Спортзал' },
       { time: '12:20 - 13:05', subject: 'Классный час', teacher: 'Классный руководитель', room: '201' }
-    ]
+    ],
+    },
+    '9': {
+      понедельник: [
+        { time: '08:30 - 09:15', subject: 'Алгебра', teacher: 'Кузнецова М.И.', room: '301' },
+        { time: '09:25 - 10:10', subject: 'Русский язык', teacher: 'Петрова М.В.', room: '305' },
+        { time: '10:25 - 11:10', subject: 'Английский язык', teacher: 'Смирнова О.И.', room: '112' },
+        { time: '11:25 - 12:10', subject: 'Физика', teacher: 'Сидоров П.Н.', room: '405' },
+        { time: '12:20 - 13:05', subject: 'История', teacher: 'Козлова Е.А.', room: '208' },
+        { time: '13:15 - 14:00', subject: 'География', teacher: 'Морозов Д.И.', room: '215' }
+      ],
+      вторник: [
+        { time: '08:30 - 09:15', subject: 'Информатика', teacher: 'Николаев В.С.', room: '301' },
+        { time: '09:25 - 10:10', subject: 'Химия', teacher: 'Волкова Н.П.', room: '407' },
+        { time: '10:25 - 11:10', subject: 'Литература', teacher: 'Петрова М.В.', room: '305' },
+        { time: '11:25 - 12:10', subject: 'Геометрия', teacher: 'Кузнецова М.И.', room: '301' },
+        { time: '12:20 - 13:05', subject: 'Физкультура', teacher: 'Федоров А.А.', room: 'Спортзал' },
+        { time: '13:15 - 14:00', subject: 'Обществознание', teacher: 'Козлова Е.А.', room: '208' }
+      ],
+      среда: [
+        { time: '08:30 - 09:15', subject: 'Алгебра', teacher: 'Кузнецова М.И.', room: '301' },
+        { time: '09:25 - 10:10', subject: 'Биология', teacher: 'Соколова Т.М.', room: '310' },
+        { time: '10:25 - 11:10', subject: 'Английский язык', teacher: 'Смирнова О.И.', room: '112' },
+        { time: '11:25 - 12:10', subject: 'Физика', teacher: 'Сидоров П.Н.', room: '405' },
+        { time: '12:20 - 13:05', subject: 'Русский язык', teacher: 'Петрова М.В.', room: '305' },
+        { time: '13:15 - 14:00', subject: 'ОБЖ', teacher: 'Григорьев И.П.', room: '120' }
+      ],
+      четверг: [
+        { time: '08:30 - 09:15', subject: 'Геометрия', teacher: 'Кузнецова М.И.', room: '301' },
+        { time: '09:25 - 10:10', subject: 'Физика', teacher: 'Сидоров П.Н.', room: '405' },
+        { time: '10:25 - 11:10', subject: 'История', teacher: 'Козлова Е.А.', room: '208' },
+        { time: '11:25 - 12:10', subject: 'Химия', teacher: 'Волкова Н.П.', room: '407' },
+        { time: '12:20 - 13:05', subject: 'Литература', teacher: 'Петрова М.В.', room: '305' },
+        { time: '13:15 - 14:00', subject: 'Информатика', teacher: 'Николаев В.С.', room: '301' }
+      ],
+      пятница: [
+        { time: '08:30 - 09:15', subject: 'Английский язык', teacher: 'Смирнова О.И.', room: '112' },
+        { time: '09:25 - 10:10', subject: 'Биология', teacher: 'Соколова Т.М.', room: '310' },
+        { time: '10:25 - 11:10', subject: 'Алгебра', teacher: 'Кузнецова М.И.', room: '301' },
+        { time: '11:25 - 12:10', subject: 'Физкультура', teacher: 'Федоров А.А.', room: 'Спортзал' },
+        { time: '12:20 - 13:05', subject: 'Обществознание', teacher: 'Козлова Е.А.', room: '208' },
+        { time: '13:15 - 14:00', subject: 'Классный час', teacher: 'Классный руководитель', room: '301' }
+      ]
+    }
   };
 
-  const news: NewsItem[] = [
+  const schedule = schedulesByClass[selectedClass] || schedulesByClass['5'];
+
+  const mockNews: NewsItem[] = [
     {
       id: 1,
-      title: 'Олимпиада по математике',
-      date: '15 октября 2025',
-      content: 'Приглашаем всех учеников принять участие в школьной олимпиаде по математике. Регистрация открыта до 20 октября.',
-      category: 'Олимпиады'
+      text: 'Приглашаем всех учеников принять участие в школьной олимпиаде по математике. Регистрация открыта до 20 октября.',
+      date: Date.now() / 1000,
+      url: 'https://vk.com/sc34global'
     },
     {
       id: 2,
-      title: 'День открытых дверей',
-      date: '12 октября 2025',
-      content: '25 октября в нашей школе пройдет День открытых дверей для будущих учеников и их родителей. Начало в 10:00.',
-      category: 'События'
-    },
-    {
-      id: 3,
-      title: 'Новая библиотека открылась',
-      date: '8 октября 2025',
-      content: 'В школе открылась обновленная библиотека с современной зоной для чтения и компьютерными местами.',
-      category: 'Новости школы'
-    },
-    {
-      id: 4,
-      title: 'Спортивные соревнования',
-      date: '5 октября 2025',
-      content: 'Наша школьная команда по баскетболу заняла первое место в городских соревнованиях! Поздравляем!',
-      category: 'Спорт'
+      text: '25 октября в нашей школе пройдет День открытых дверей для будущих учеников и их родителей. Начало в 10:00.',
+      date: Date.now() / 1000,
+      url: 'https://vk.com/sc34global'
     }
   ];
 
@@ -135,6 +193,19 @@ const Index = () => {
     setInputMessage('');
   };
 
+  const formatDate = (timestamp: number): string => {
+    const date = new Date(timestamp * 1000);
+    return date.toLocaleDateString('ru-RU', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
+  };
+
+  const displayNews = news.length > 0 ? news : mockNews;
+
+  const classes = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11'];
+
   const getGlobertResponse = (question: string): string => {
     const lowerQuestion = question.toLowerCase();
     
@@ -157,32 +228,36 @@ const Index = () => {
     return 'Спасибо за вопрос! Я помогу тебе с информацией о школе, расписании уроков, кружках и мероприятиях. Что именно тебя интересует?';
   };
 
-  const getCategoryColor = (category: string) => {
-    switch (category) {
-      case 'Олимпиады':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'События':
-        return 'bg-green-100 text-green-800 border-green-200';
-      case 'Спорт':
-        return 'bg-red-100 text-red-800 border-red-200';
-      default:
-        return 'bg-blue-100 text-blue-800 border-blue-200';
-    }
+  const formatDate = (timestamp: number): string => {
+    const date = new Date(timestamp * 1000);
+    return date.toLocaleDateString('ru-RU', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
   };
+
+  const displayNews = news.length > 0 ? news : mockNews;
+
+  const classes = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11'];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-sky-50 to-blue-100">
       <div className="container mx-auto p-4 md:p-6 max-w-7xl">
         <header className="mb-8 text-center animate-fade-in">
-          <div className="flex items-center justify-center gap-3 mb-2">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-sky-500 rounded-2xl flex items-center justify-center shadow-lg">
-              <Icon name="Bot" className="text-white" size={32} />
+          <div className="flex items-center justify-center gap-4 mb-2">
+            <img 
+              src="https://cdn.poehali.dev/files/02c3f99f-1b97-42f4-9400-d56b4033d447.png" 
+              alt="Глоберт" 
+              className="w-24 h-24 object-contain"
+            />
+            <div>
+              <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-600 to-sky-500 bg-clip-text text-transparent">
+                Глоберт
+              </h1>
+              <p className="text-gray-600 text-lg">ИИ-помощник школы Global 34</p>
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-600 to-sky-500 bg-clip-text text-transparent">
-              Глоберт
-            </h1>
           </div>
-          <p className="text-gray-600 text-lg">ИИ-помощник школы Global 34</p>
         </header>
 
         <Tabs defaultValue="chat" className="w-full">
@@ -270,6 +345,22 @@ const Index = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6">
+                <div className="mb-6">
+                  <label className="block text-sm font-semibold text-gray-700 mb-3">Выберите класс:</label>
+                  <div className="grid grid-cols-6 md:grid-cols-11 gap-2 mb-6">
+                    {classes.map((cls) => (
+                      <Button
+                        key={cls}
+                        onClick={() => setSelectedClass(cls)}
+                        variant={selectedClass === cls ? 'default' : 'outline'}
+                        className={`h-12 ${selectedClass === cls ? 'bg-gradient-to-r from-blue-600 to-sky-500 text-white' : 'hover:bg-blue-50'}`}
+                      >
+                        {cls}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+
                 <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
                   {Object.keys(schedule).map((day) => (
                     <Button
@@ -333,25 +424,48 @@ const Index = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6">
-                <div className="space-y-4">
-                  {news.map((item) => (
-                    <Card key={item.id} className="hover:shadow-md transition-all duration-300 hover-scale border border-gray-200">
-                      <CardContent className="p-5">
-                        <div className="flex items-start justify-between mb-3">
-                          <h3 className="font-bold text-xl text-gray-800">{item.title}</h3>
-                          <Badge className={`${getCategoryColor(item.category)} border`}>
-                            {item.category}
-                          </Badge>
-                        </div>
-                        <p className="text-gray-600 mb-3 leading-relaxed">{item.content}</p>
-                        <div className="flex items-center gap-2 text-sm text-gray-500">
-                          <Icon name="Clock" size={16} className="text-blue-600" />
-                          <span>{item.date}</span>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
+                {isLoadingNews && news.length === 0 ? (
+                  <div className="text-center py-8">
+                    <Icon name="Loader2" className="animate-spin mx-auto text-blue-600" size={32} />
+                    <p className="text-gray-600 mt-2">Загрузка новостей...</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {displayNews.map((item) => (
+                      <Card key={item.id} className="hover:shadow-md transition-all duration-300 hover-scale border border-gray-200">
+                        <CardContent className="p-5">
+                          <div className="flex gap-4">
+                            {item.image && (
+                              <img 
+                                src={item.image} 
+                                alt="Новость" 
+                                className="w-24 h-24 object-cover rounded-lg flex-shrink-0"
+                              />
+                            )}
+                            <div className="flex-1">
+                              <p className="text-gray-700 mb-3 leading-relaxed">{item.text}</p>
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2 text-sm text-gray-500">
+                                  <Icon name="Clock" size={16} className="text-blue-600" />
+                                  <span>{formatDate(item.date)}</span>
+                                </div>
+                                <a 
+                                  href={item.url} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer"
+                                  className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center gap-1"
+                                >
+                                  Читать в VK
+                                  <Icon name="ExternalLink" size={14} />
+                                </a>
+                              </div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
