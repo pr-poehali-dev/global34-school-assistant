@@ -53,20 +53,7 @@ const Index = () => {
   const [isLoadingNews, setIsLoadingNews] = useState(true);
 
   useEffect(() => {
-    const fetchNews = async () => {
-      try {
-        const response = await fetch('https://functions.poehali.dev/72b4d458-f810-44f5-b820-942bf9d44bc2');
-        const data = await response.json();
-        if (data.posts && Array.isArray(data.posts)) {
-          setNews(data.posts);
-        }
-      } catch (error) {
-        console.error('Ошибка загрузки новостей:', error);
-      } finally {
-        setIsLoadingNews(false);
-      }
-    };
-    fetchNews();
+    setIsLoadingNews(false);
   }, []);
 
   const schedulesByClass: Record<string, Record<string, ScheduleItem[]>> = {
@@ -168,7 +155,7 @@ const Index = () => {
     }
   ];
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!inputMessage.trim()) return;
 
     const userMessage: Message = {
@@ -178,19 +165,39 @@ const Index = () => {
       timestamp: new Date()
     };
 
+    const currentInput = inputMessage;
     setMessages([...messages, userMessage]);
+    setInputMessage('');
 
-    setTimeout(() => {
+    try {
+      const response = await fetch('https://functions.poehali.dev/6dbbeb29-e040-4809-8d29-70ba1132099b', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ message: currentInput })
+      });
+
+      const data = await response.json();
+      
       const globertResponse: Message = {
         id: messages.length + 2,
-        text: getGlobertResponse(inputMessage),
+        text: data.reply || getGlobertResponse(currentInput),
+        sender: 'globert',
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, globertResponse]);
+    } catch (error) {
+      console.error('Ошибка:', error);
+      const globertResponse: Message = {
+        id: messages.length + 2,
+        text: getGlobertResponse(currentInput),
         sender: 'globert',
         timestamp: new Date()
       };
       setMessages(prev => [...prev, globertResponse]);
-    }, 800);
-
-    setInputMessage('');
+    }
   };
 
   const formatDate = (timestamp: number): string => {

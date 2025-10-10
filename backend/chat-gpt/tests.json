@@ -7,12 +7,15 @@
       "expectedStatus": 200
     },
     {
-      "name": "Test GET news from VK",
-      "method": "GET",
+      "name": "Test POST chat message",
+      "method": "POST",
       "path": "/",
+      "body": {
+        "message": "Привет, Глоберт!"
+      },
       "expectedStatus": 200,
       "expectedBody": {
-        "posts": "array"
+        "reply": "string"
       },
       "bodyMatcher": "partial"
     }
