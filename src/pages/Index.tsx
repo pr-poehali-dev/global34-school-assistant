@@ -12,6 +12,7 @@ interface Message {
   text: string;
   sender: 'user' | 'globert';
   timestamp: Date;
+  userName?: string;
 }
 
 interface ScheduleItem {
@@ -30,136 +31,148 @@ interface NewsItem {
 }
 
 const Index = () => {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: 1,
-      text: 'Привет! Я Глоберт, твой ИИ-помощник в школе Global 34. Чем могу помочь?',
-      sender: 'globert',
-      timestamp: new Date()
+  const [messages, setMessages] = useState<Message[]>(() => {
+    const saved = localStorage.getItem('chat_history');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      return parsed.map((msg: any) => ({
+        ...msg,
+        timestamp: new Date(msg.timestamp)
+      }));
     }
-  ]);
+    return [
+      {
+        id: 1,
+        text: 'Привет! Я Глоберт, твой ИИ-помощник в школе Global 34. Как тебя зовут?',
+        sender: 'globert',
+        timestamp: new Date()
+      }
+    ];
+  });
   const [inputMessage, setInputMessage] = useState('');
   const [activeDay, setActiveDay] = useState('понедельник');
   const [selectedClass, setSelectedClass] = useState('5А');
   const [news, setNews] = useState<NewsItem[]>([]);
   const [isLoadingNews, setIsLoadingNews] = useState(true);
-  const [isSpeaking, setIsSpeaking] = useState(false);
-  const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const [userName, setUserName] = useState<string>(() => {
+    return localStorage.getItem('user_name') || '';
+  });
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef<any>(null);
 
   useEffect(() => {
-    setIsLoadingNews(false);
+    fetchVKNews();
   }, []);
 
-  const speakText = (text: string) => {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
+  useEffect(() => {
+    localStorage.setItem('chat_history', JSON.stringify(messages));
+  }, [messages]);
+
+  useEffect(() => {
+    if (userName) {
+      localStorage.setItem('user_name', userName);
+    }
+  }, [userName]);
+
+  const fetchVKNews = async () => {
+    setIsLoadingNews(true);
+    try {
+      const response = await fetch('https://api.vk.com/method/wall.get?domain=sc34global&count=10&access_token=&v=5.131');
+      const data = await response.json();
       
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'ru-RU';
-      utterance.rate = 0.95;
-      utterance.pitch = 1.1;
-      
-      const voices = window.speechSynthesis.getVoices();
-      const russianVoice = voices.find(voice => 
-        voice.lang === 'ru-RU' && (voice.name.includes('Google') || voice.name.includes('Yandex') || voice.name.includes('Milena'))
-      ) || voices.find(voice => voice.lang === 'ru-RU');
-      
-      if (russianVoice) {
-        utterance.voice = russianVoice;
+      if (data.response && data.response.items) {
+        const newsItems: NewsItem[] = data.response.items.slice(0, 5).map((item: any) => ({
+          id: item.id,
+          text: item.text,
+          date: item.date,
+          url: `https://vk.com/sc34global?w=wall-${Math.abs(item.owner_id)}_${item.id}`,
+          image: item.attachments?.[0]?.photo?.sizes?.[item.attachments[0].photo.sizes.length - 1]?.url
+        }));
+        setNews(newsItems);
       }
-      
-      utterance.onstart = () => setIsSpeaking(true);
-      utterance.onend = () => setIsSpeaking(false);
-      utterance.onerror = () => setIsSpeaking(false);
-      
-      speechRef.current = utterance;
-      window.speechSynthesis.speak(utterance);
+    } catch (error) {
+      console.error('Ошибка загрузки новостей:', error);
+    } finally {
+      setIsLoadingNews(false);
     }
   };
 
+  const startVoiceRecognition = () => {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      alert('Голосовой ввод не поддерживается в вашем браузере');
+      return;
+    }
+
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    
+    recognition.lang = 'ru-RU';
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    recognition.onstart = () => {
+      setIsListening(true);
+    };
+
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      setInputMessage(transcript);
+      setIsListening(false);
+    };
+
+    recognition.onerror = () => {
+      setIsListening(false);
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+
+    recognitionRef.current = recognition;
+    recognition.start();
+  };
+
   const schedulesByClass: Record<string, Record<string, ScheduleItem[]>> = {
-    '5': {
-    понедельник: [
-      { time: '08:30 - 09:15', subject: 'Математика', teacher: 'Иванова А.С.', room: '201' },
-      { time: '09:25 - 10:10', subject: 'Русский язык', teacher: 'Петрова М.В.', room: '305' },
-      { time: '10:25 - 11:10', subject: 'Английский язык', teacher: 'Смирнова О.И.', room: '112' },
-      { time: '11:25 - 12:10', subject: 'Физика', teacher: 'Сидоров П.Н.', room: '405' },
-      { time: '12:20 - 13:05', subject: 'История', teacher: 'Козлова Е.А.', room: '208' }
-    ],
-    вторник: [
-      { time: '08:30 - 09:15', subject: 'Информатика', teacher: 'Николаев В.С.', room: '301' },
-      { time: '09:25 - 10:10', subject: 'Химия', teacher: 'Волкова Н.П.', room: '407' },
-      { time: '10:25 - 11:10', subject: 'Литература', teacher: 'Петрова М.В.', room: '305' },
-      { time: '11:25 - 12:10', subject: 'География', teacher: 'Морозов Д.И.', room: '215' },
-      { time: '12:20 - 13:05', subject: 'Физкультура', teacher: 'Федоров А.А.', room: 'Спортзал' }
-    ],
-    среда: [
-      { time: '08:30 - 09:15', subject: 'Математика', teacher: 'Иванова А.С.', room: '201' },
-      { time: '09:25 - 10:10', subject: 'Биология', teacher: 'Соколова Т.М.', room: '310' },
-      { time: '10:25 - 11:10', subject: 'Английский язык', teacher: 'Смирнова О.И.', room: '112' },
-      { time: '11:25 - 12:10', subject: 'Обществознание', teacher: 'Козлова Е.А.', room: '208' },
-      { time: '12:20 - 13:05', subject: 'Искусство', teacher: 'Белова К.В.', room: '115' }
-    ],
-    четверг: [
-      { time: '08:30 - 09:15', subject: 'Русский язык', teacher: 'Петрова М.В.', room: '305' },
-      { time: '09:25 - 10:10', subject: 'Физика', teacher: 'Сидоров П.Н.', room: '405' },
-      { time: '10:25 - 11:10', subject: 'Математика', teacher: 'Иванова А.С.', room: '201' },
-      { time: '11:25 - 12:10', subject: 'Технология', teacher: 'Громов С.П.', room: '118' },
-      { time: '12:20 - 13:05', subject: 'Музыка', teacher: 'Романова Л.Д.', room: '120' }
-    ],
-    пятница: [
-      { time: '08:30 - 09:15', subject: 'Информатика', teacher: 'Николаев В.С.', room: '301' },
-      { time: '09:25 - 10:10', subject: 'Английский язык', teacher: 'Смирнова О.И.', room: '112' },
-      { time: '10:25 - 11:10', subject: 'История', teacher: 'Козлова Е.А.', room: '208' },
-      { time: '11:25 - 12:10', subject: 'Физкультура', teacher: 'Федоров А.А.', room: 'Спортзал' },
-      { time: '12:20 - 13:05', subject: 'Классный час', teacher: 'Классный руководитель', room: '201' }
-    ],
-    },
-    '9': {
+    '5А': {
       понедельник: [
-        { time: '08:30 - 09:15', subject: 'Алгебра', teacher: 'Кузнецова М.И.', room: '301' },
-        { time: '09:25 - 10:10', subject: 'Русский язык', teacher: 'Петрова М.В.', room: '305' },
-        { time: '10:25 - 11:10', subject: 'Английский язык', teacher: 'Смирнова О.И.', room: '112' },
-        { time: '11:25 - 12:10', subject: 'Физика', teacher: 'Сидоров П.Н.', room: '405' },
-        { time: '12:20 - 13:05', subject: 'История', teacher: 'Козлова Е.А.', room: '208' },
-        { time: '13:15 - 14:00', subject: 'География', teacher: 'Морозов Д.И.', room: '215' }
+        { time: '08:00 - 08:45', subject: 'Математика', teacher: 'Иванова А.С.', room: '201' },
+        { time: '08:55 - 09:40', subject: 'Русский язык', teacher: 'Петрова М.В.', room: '305' },
+        { time: '09:50 - 10:35', subject: 'Литература', teacher: 'Петрова М.В.', room: '305' },
+        { time: '10:55 - 11:40', subject: 'Английский язык', teacher: 'Смирнова О.И.', room: '112' },
+        { time: '11:50 - 12:35', subject: 'История', teacher: 'Козлова Е.А.', room: '208' }
       ],
       вторник: [
-        { time: '08:30 - 09:15', subject: 'Информатика', teacher: 'Николаев В.С.', room: '301' },
-        { time: '09:25 - 10:10', subject: 'Химия', teacher: 'Волкова Н.П.', room: '407' },
-        { time: '10:25 - 11:10', subject: 'Литература', teacher: 'Петрова М.В.', room: '305' },
-        { time: '11:25 - 12:10', subject: 'Геометрия', teacher: 'Кузнецова М.И.', room: '301' },
-        { time: '12:20 - 13:05', subject: 'Физкультура', teacher: 'Федоров А.А.', room: 'Спортзал' },
-        { time: '13:15 - 14:00', subject: 'Обществознание', teacher: 'Козлова Е.А.', room: '208' }
+        { time: '08:00 - 08:45', subject: 'Физкультура', teacher: 'Федоров А.А.', room: 'Спортзал' },
+        { time: '08:55 - 09:40', subject: 'Биология', teacher: 'Соколова Т.М.', room: '310' },
+        { time: '09:50 - 10:35', subject: 'География', teacher: 'Морозов Д.И.', room: '215' },
+        { time: '10:55 - 11:40', subject: 'Математика', teacher: 'Иванова А.С.', room: '201' },
+        { time: '11:50 - 12:35', subject: 'Русский язык', teacher: 'Петрова М.В.', room: '305' }
       ],
       среда: [
-        { time: '08:30 - 09:15', subject: 'Алгебра', teacher: 'Кузнецова М.И.', room: '301' },
-        { time: '09:25 - 10:10', subject: 'Биология', teacher: 'Соколова Т.М.', room: '310' },
-        { time: '10:25 - 11:10', subject: 'Английский язык', teacher: 'Смирнова О.И.', room: '112' },
-        { time: '11:25 - 12:10', subject: 'Физика', teacher: 'Сидоров П.Н.', room: '405' },
-        { time: '12:20 - 13:05', subject: 'Русский язык', teacher: 'Петрова М.В.', room: '305' },
-        { time: '13:15 - 14:00', subject: 'ОБЖ', teacher: 'Григорьев И.П.', room: '120' }
+        { time: '08:00 - 08:45', subject: 'Английский язык', teacher: 'Смирнова О.И.', room: '112' },
+        { time: '08:55 - 09:40', subject: 'Математика', teacher: 'Иванова А.С.', room: '201' },
+        { time: '09:50 - 10:35', subject: 'Информатика', teacher: 'Николаев В.С.', room: '301' },
+        { time: '10:55 - 11:40', subject: 'Обществознание', teacher: 'Козлова Е.А.', room: '208' },
+        { time: '11:50 - 12:35', subject: 'Технология', teacher: 'Громов С.П.', room: '118' }
       ],
       четверг: [
-        { time: '08:30 - 09:15', subject: 'Геометрия', teacher: 'Кузнецова М.И.', room: '301' },
-        { time: '09:25 - 10:10', subject: 'Физика', teacher: 'Сидоров П.Н.', room: '405' },
-        { time: '10:25 - 11:10', subject: 'История', teacher: 'Козлова Е.А.', room: '208' },
-        { time: '11:25 - 12:10', subject: 'Химия', teacher: 'Волкова Н.П.', room: '407' },
-        { time: '12:20 - 13:05', subject: 'Литература', teacher: 'Петрова М.В.', room: '305' },
-        { time: '13:15 - 14:00', subject: 'Информатика', teacher: 'Николаев В.С.', room: '301' }
+        { time: '08:00 - 08:45', subject: 'Русский язык', teacher: 'Петрова М.В.', room: '305' },
+        { time: '08:55 - 09:40', subject: 'Литература', teacher: 'Петрова М.В.', room: '305' },
+        { time: '09:50 - 10:35', subject: 'Математика', teacher: 'Иванова А.С.', room: '201' },
+        { time: '10:55 - 11:40', subject: 'Музыка', teacher: 'Романова Л.Д.', room: '120' },
+        { time: '11:50 - 12:35', subject: 'ИЗО', teacher: 'Белова К.В.', room: '115' }
       ],
       пятница: [
-        { time: '08:30 - 09:15', subject: 'Английский язык', teacher: 'Смирнова О.И.', room: '112' },
-        { time: '09:25 - 10:10', subject: 'Биология', teacher: 'Соколова Т.М.', room: '310' },
-        { time: '10:25 - 11:10', subject: 'Алгебра', teacher: 'Кузнецова М.И.', room: '301' },
-        { time: '11:25 - 12:10', subject: 'Физкультура', teacher: 'Федоров А.А.', room: 'Спортзал' },
-        { time: '12:20 - 13:05', subject: 'Обществознание', teacher: 'Козлова Е.А.', room: '208' },
-        { time: '13:15 - 14:00', subject: 'Классный час', teacher: 'Классный руководитель', room: '301' }
+        { time: '08:00 - 08:45', subject: 'Английский язык', teacher: 'Смирнова О.И.', room: '112' },
+        { time: '08:55 - 09:40', subject: 'История', teacher: 'Козлова Е.А.', room: '208' },
+        { time: '09:50 - 10:35', subject: 'Физкультура', teacher: 'Федоров А.А.', room: 'Спортзал' },
+        { time: '10:55 - 11:40', subject: 'Математика', teacher: 'Иванова А.С.', room: '201' },
+        { time: '11:50 - 12:35', subject: 'Классный час', teacher: 'Классный руководитель', room: '201' }
       ]
     }
   };
 
-  const schedule = schedulesByClass[selectedClass] || schedulesByClass['5'];
+  const schedule = schedulesByClass[selectedClass] || schedulesByClass['5А'];
 
   const mockNews: NewsItem[] = [
     {
@@ -179,11 +192,34 @@ const Index = () => {
   const handleSendMessage = async () => {
     if (!inputMessage.trim()) return;
 
+    if (!userName) {
+      setUserName(inputMessage.trim());
+      const userMessage: Message = {
+        id: messages.length + 1,
+        text: inputMessage,
+        sender: 'user',
+        timestamp: new Date(),
+        userName: inputMessage.trim()
+      };
+      setMessages([...messages, userMessage]);
+      
+      const welcomeMessage: Message = {
+        id: messages.length + 2,
+        text: `Приятно познакомиться, ${inputMessage.trim()}! Теперь я буду обращаться к тебе по имени. Чем могу помочь?`,
+        sender: 'globert',
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, welcomeMessage]);
+      setInputMessage('');
+      return;
+    }
+
     const userMessage: Message = {
       id: messages.length + 1,
       text: inputMessage,
       sender: 'user',
-      timestamp: new Date()
+      timestamp: new Date(),
+      userName: userName
     };
 
     const currentInput = inputMessage;
@@ -196,7 +232,7 @@ const Index = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ message: currentInput })
+        body: JSON.stringify({ message: currentInput, userName: userName })
       });
 
       const data = await response.json();
@@ -209,7 +245,6 @@ const Index = () => {
       };
       
       setMessages(prev => [...prev, globertResponse]);
-      speakText(globertResponse.text);
     } catch (error) {
       console.error('Ошибка:', error);
       const globertResponse: Message = {
@@ -219,7 +254,6 @@ const Index = () => {
         timestamp: new Date()
       };
       setMessages(prev => [...prev, globertResponse]);
-      speakText(globertResponse.text);
     }
   };
 
@@ -249,24 +283,39 @@ const Index = () => {
 
   const getGlobertResponse = (question: string): string => {
     const lowerQuestion = question.toLowerCase();
+    const greeting = userName ? `${userName}, ` : '';
     
     if (lowerQuestion.includes('расписание') || lowerQuestion.includes('урок')) {
-      return 'Расписание уроков доступно во вкладке "Расписание". Там ты найдешь все уроки на неделю с указанием времени, кабинетов и преподавателей.';
+      return `${greeting}расписание уроков доступно во вкладке "Расписание". Там ты найдешь все уроки на неделю с указанием времени, кабинетов и преподавателей.`;
     }
     if (lowerQuestion.includes('домашн') || lowerQuestion.includes('дз')) {
-      return 'Домашнее задание можно посмотреть в электронном дневнике или уточнить у преподавателя предмета.';
+      return `${greeting}домашнее задание можно посмотреть в электронном дневнике или уточнить у преподавателя предмета.`;
     }
     if (lowerQuestion.includes('столовая') || lowerQuestion.includes('обед')) {
-      return 'Столовая работает с 10:00 до 15:00. Большая перемена для обеда - с 11:10 до 11:25.';
+      return `${greeting}столовая работает с 10:00 до 15:00. Большая перемена для обеда - с 10:35 до 10:55.`;
     }
     if (lowerQuestion.includes('библиотека')) {
-      return 'Школьная библиотека открыта с 8:00 до 17:00. Находится на 2 этаже, кабинет 205.';
+      return `${greeting}школьная библиотека открыта с 8:00 до 17:00. Находится на 2 этаже, кабинет 205.`;
     }
     if (lowerQuestion.includes('кружок') || lowerQuestion.includes('секция')) {
-      return 'В школе работают различные кружки: программирование, робототехника, английский клуб, спортивные секции. Расписание можно узнать у завуча.';
+      return `${greeting}в школе работают различные кружки: программирование, робототехника, английский клуб, спортивные секции. Расписание можно узнать у завуча.`;
     }
     
-    return 'Спасибо за вопрос! Я помогу тебе с информацией о школе, расписании уроков, кружках и мероприятиях. Что именно тебя интересует?';
+    return `${greeting}спасибо за вопрос! Я помогу тебе с информацией о школе, расписании уроков, кружках и мероприятиях. Что именно тебя интересует?`;
+  };
+
+  const clearHistory = () => {
+    if (confirm('Очистить историю чата?')) {
+      localStorage.removeItem('chat_history');
+      localStorage.removeItem('user_name');
+      setUserName('');
+      setMessages([{
+        id: 1,
+        text: 'Привет! Я Глоберт, твой ИИ-помощник в школе Global 34. Как тебя зовут?',
+        sender: 'globert',
+        timestamp: new Date()
+      }]);
+    }
   };
 
   return (
@@ -278,24 +327,18 @@ const Index = () => {
         </div>
         
         <div className="relative z-10 flex flex-col items-center">
-          <div className={`transition-all duration-200 ${isSpeaking ? 'scale-105' : 'scale-100'}`}>
+          <div className="transition-all duration-200">
             <img 
               src="https://cdn.poehali.dev/files/02c3f99f-1b97-42f4-9400-d56b4033d447.png" 
               alt="Глоберт" 
-              className={`w-[500px] h-[500px] object-contain drop-shadow-2xl ${isSpeaking ? 'animate-pulse' : ''}`}
+              className="w-[500px] h-[500px] object-contain drop-shadow-2xl"
             />
           </div>
           <div className="mt-8 text-center">
             <h2 className="text-4xl font-bold text-white mb-2">Глоберт</h2>
             <p className="text-white/90 text-xl">Твой ИИ-помощник</p>
-            {isSpeaking && (
-              <div className="mt-4 flex gap-1 justify-center">
-                <div className="w-2 h-8 bg-white rounded-full animate-pulse"></div>
-                <div className="w-2 h-12 bg-white rounded-full animate-pulse delay-100"></div>
-                <div className="w-2 h-10 bg-white rounded-full animate-pulse delay-200"></div>
-                <div className="w-2 h-14 bg-white rounded-full animate-pulse delay-300"></div>
-                <div className="w-2 h-8 bg-white rounded-full animate-pulse delay-100"></div>
-              </div>
+            {userName && (
+              <p className="text-white/80 text-lg mt-2">Рад помочь, {userName}!</p>
             )}
           </div>
         </div>
@@ -304,11 +347,14 @@ const Index = () => {
       <div className="flex-1 p-4 md:p-6">
         <header className="mb-6 text-center animate-fade-in">
           <div className="flex items-center justify-center gap-4 mb-2">
-            <img 
-              src="https://cdn.poehali.dev/files/a62bbaa2-f9d9-45cf-bc85-68c09311e8f1.png" 
-              alt="Логотип Global 34" 
-              className="w-16 h-16 object-contain"
-            />
+            <div className="w-24 h-24 flex items-center justify-center">
+              <img 
+                src="https://cdn.poehali.dev/files/a62bbaa2-f9d9-45cf-bc85-68c09311e8f1.png" 
+                alt="Логотип Global 34" 
+                className="w-full h-full object-contain"
+                style={{ filter: 'drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1))' }}
+              />
+            </div>
             <div>
               <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-600 to-sky-500 bg-clip-text text-transparent">
                 Школа Global 34
@@ -337,9 +383,20 @@ const Index = () => {
           <TabsContent value="chat" className="animate-fade-in">
             <Card className="shadow-xl border-0 overflow-hidden">
               <CardHeader className="bg-gradient-to-r from-blue-600 to-sky-500 text-white">
-                <CardTitle className="flex items-center gap-2">
-                  <Icon name="Bot" size={24} />
-                  Чат с Глобертом
+                <CardTitle className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Icon name="Bot" size={24} />
+                    Чат с Глобертом
+                  </div>
+                  <Button
+                    onClick={clearHistory}
+                    variant="ghost"
+                    size="sm"
+                    className="text-white hover:bg-white/20"
+                  >
+                    <Icon name="Trash2" size={16} className="mr-1" />
+                    Очистить
+                  </Button>
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-0">
@@ -379,9 +436,15 @@ const Index = () => {
                       value={inputMessage}
                       onChange={(e) => setInputMessage(e.target.value)}
                       onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                      placeholder="Задай вопрос Глоберту..."
+                      placeholder={userName ? "Задай вопрос Глоберту..." : "Как тебя зовут?"}
                       className="flex-1 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                     />
+                    <Button
+                      onClick={startVoiceRecognition}
+                      className={`${isListening ? 'bg-red-500 hover:bg-red-600' : 'bg-gray-500 hover:bg-gray-600'} text-white px-4`}
+                    >
+                      <Icon name={isListening ? "MicOff" : "Mic"} size={20} />
+                    </Button>
                     <Button
                       onClick={handleSendMessage}
                       className="bg-gradient-to-r from-blue-600 to-sky-500 hover:from-blue-700 hover:to-sky-600 text-white px-6"
@@ -482,7 +545,7 @@ const Index = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6">
-                {isLoadingNews && news.length === 0 ? (
+                {isLoadingNews ? (
                   <div className="text-center py-8">
                     <Icon name="Loader2" className="animate-spin mx-auto text-blue-600" size={32} />
                     <p className="text-gray-600 mt-2">Загрузка новостей...</p>
