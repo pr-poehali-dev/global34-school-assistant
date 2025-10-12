@@ -99,35 +99,14 @@ export const useChat = () => {
 
     setMessages([...messages, userMessage]);
 
-    try {
-      const response = await fetch('https://functions.poehali.dev/6dbbeb29-e040-4809-8d29-70ba1132099b', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ message: inputMessage, userName: userName })
-      });
-
-      const data = await response.json();
-      
-      const globertResponse: Message = {
-        id: messages.length + 2,
-        text: data.reply || getGlobertResponse(inputMessage),
-        sender: 'globert',
-        timestamp: new Date()
-      };
-      
-      setMessages(prev => [...prev, globertResponse]);
-    } catch (error) {
-      console.error('Ошибка:', error);
-      const globertResponse: Message = {
-        id: messages.length + 2,
-        text: `${userName ? `${userName}, ` : ''}извини, пожалуйста, но сейчас у меня проблемы с подключением. Попробуй задать вопрос позже!`,
-        sender: 'globert',
-        timestamp: new Date()
-      };
-      setMessages(prev => [...prev, globertResponse]);
-    }
+    const globertResponse: Message = {
+      id: messages.length + 2,
+      text: `${userName ? `${userName}, ` : ''}извините, но в данный момент я не могу ответить на ваш вопрос.`,
+      sender: 'globert',
+      timestamp: new Date()
+    };
+    
+    setMessages(prev => [...prev, globertResponse]);
   };
 
   const clearHistory = () => {
