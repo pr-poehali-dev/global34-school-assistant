@@ -1,22 +1,38 @@
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
+import { bellSchedule } from '@/data/scheduleData';
+
+interface ScheduleItem {
+  time: string;
+  subject: string;
+  teacher: string;
+  room: string;
+}
 
 interface ScheduleImageViewProps {
   selectedClass: string;
   setSelectedClass: (value: string) => void;
   classes: string[];
   scheduleImages: Record<string, string>;
+  schedule: Record<string, ScheduleItem[]>;
+  activeDay: string;
+  setActiveDay: (value: string) => void;
 }
 
 const ScheduleImageView = ({
   selectedClass,
   setSelectedClass,
   classes,
-  scheduleImages
+  scheduleImages,
+  schedule,
+  activeDay,
+  setActiveDay
 }: ScheduleImageViewProps) => {
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [showBells, setShowBells] = useState(false);
   const firstToFourthClasses = classes.filter(cls => {
     const grade = parseInt(cls.charAt(0));
     return grade >= 1 && grade <= 4;
@@ -31,14 +47,25 @@ const ScheduleImageView = ({
             <Icon name="Calendar" size={24} />
             Расписание уроков
           </div>
-          <div className="text-2xl font-bold">{selectedClass}</div>
+          <div className="flex items-center gap-4">
+            <Button
+              onClick={() => setShowBells(!showBells)}
+              variant="ghost"
+              size="sm"
+              className="text-white hover:bg-white/20"
+            >
+              <Icon name="Bell" size={16} className="mr-1" />
+              {showBells ? 'Скрыть звонки' : 'Расписание звонков'}
+            </Button>
+            <div className="text-2xl font-bold">{selectedClass}</div>
+          </div>
         </CardTitle>
       </CardHeader>
       <CardContent className="p-6">
         <div className="mb-6">
-          <label className="block text-sm font-semibold text-gray-700 mb-3">Выберите класс (1-4):</label>
+          <label className="block text-sm font-semibold text-gray-700 mb-3">Выберите класс:</label>
           <div className="grid grid-cols-7 gap-2 mb-6">
-            {firstToFourthClasses.map((cls) => (
+            {classes.map((cls) => (
               <Button
                 key={cls}
                 onClick={() => setSelectedClass(cls)}
@@ -51,7 +78,30 @@ const ScheduleImageView = ({
           </div>
         </div>
 
-        {hasImage ? (
+        {showBells ? (
+          <div className="space-y-2">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">Расписание звонков</h3>
+            {bellSchedule.map((bell) => (
+              <Card key={bell.lesson} className="border border-gray-200">
+                <CardContent className="p-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-sky-500 rounded-lg flex items-center justify-center text-white font-bold">
+                        {bell.lesson}
+                      </div>
+                      <span className="font-semibold text-gray-700">{bell.time}</span>
+                    </div>
+                    {bell.break && (
+                      <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                        Перемена {bell.break}
+                      </Badge>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : hasImage ? (
           <>
             <div className="flex justify-center">
               <img 
@@ -83,6 +133,65 @@ const ScheduleImageView = ({
                 />
               </div>
             )}
+          </>
+        ) : schedule && Object.keys(schedule).length > 0 ? (
+          <>
+            <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+              {Object.keys(schedule).map((day) => (
+                <Button
+                  key={day}
+                  onClick={() => setActiveDay(day)}
+                  variant={activeDay === day ? 'default' : 'outline'}
+                  className={`capitalize whitespace-nowrap ${
+                    activeDay === day
+                      ? 'bg-gradient-to-r from-blue-600 to-sky-500 text-white'
+                      : 'hover:bg-blue-50'
+                  }`}
+                >
+                  {day}
+                </Button>
+              ))}
+            </div>
+
+            <div className="space-y-3">
+              {schedule[activeDay]?.map((item, index) => (
+                <Card key={index} className="hover:shadow-md transition-all duration-300 hover-scale border border-gray-200">
+                  <CardContent className="p-4">
+                    <div className="flex items-start gap-4">
+                      <div className="flex-shrink-0">
+                        <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-sky-500 rounded-xl flex items-center justify-center text-white font-bold shadow-md">
+                          {index + 1}
+                        </div>
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-start justify-between mb-1">
+                          <h3 className="font-bold text-lg text-gray-800">{item.subject || '—'}</h3>
+                          <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                            {item.time}
+                          </Badge>
+                        </div>
+                        {item.subject && (
+                          <div className="flex items-center gap-4 text-sm text-gray-600 mt-2">
+                            {item.teacher && (
+                              <div className="flex items-center gap-1">
+                                <Icon name="User" size={16} className="text-blue-600" />
+                                <span>{item.teacher}</span>
+                              </div>
+                            )}
+                            {item.room && (
+                              <div className="flex items-center gap-1">
+                                <Icon name="MapPin" size={16} className="text-blue-600" />
+                                <span>Каб. {item.room}</span>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </>
         ) : (
           <div className="text-center py-12 text-gray-500">

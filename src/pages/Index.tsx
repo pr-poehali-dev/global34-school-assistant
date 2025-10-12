@@ -107,23 +107,15 @@ const Index = () => {
           </TabsContent>
 
           <TabsContent value="schedule" className="animate-fade-in">
-            {isFirstToFourthGrade() ? (
-              <ScheduleImageView
-                selectedClass={selectedClass}
-                setSelectedClass={setSelectedClass}
-                classes={classes}
-                scheduleImages={scheduleImages}
-              />
-            ) : (
-              <ScheduleTab
-                selectedClass={selectedClass}
-                setSelectedClass={setSelectedClass}
-                activeDay={activeDay}
-                setActiveDay={setActiveDay}
-                schedule={schedule}
-                classes={classes}
-              />
-            )}
+            <ScheduleImageView
+              selectedClass={selectedClass}
+              setSelectedClass={setSelectedClass}
+              classes={classes}
+              scheduleImages={scheduleImages}
+              schedule={schedule}
+              activeDay={activeDay}
+              setActiveDay={setActiveDay}
+            />
           </TabsContent>
 
           <TabsContent value="events" className="animate-fade-in">
