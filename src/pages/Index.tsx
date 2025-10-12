@@ -67,7 +67,12 @@ const Index = () => {
     '2Е': 'https://cdn.poehali.dev/files/26a33afa-7fdb-4dbc-9afe-3e7172cc4c2d.jpeg',
     '3А': 'https://cdn.poehali.dev/files/c5694139-c743-40af-b4a5-b498beb65834.jpeg',
     '3Б': 'https://cdn.poehali.dev/files/7f060d3d-0b99-4eb0-a58d-d0e64932bede.jpeg',
-    '3В': 'https://cdn.poehali.dev/files/6b62b9d5-b2fd-4b27-9907-a8a94009115f.jpeg'
+    '3В': 'https://cdn.poehali.dev/files/6b62b9d5-b2fd-4b27-9907-a8a94009115f.jpeg',
+    '3Г': 'https://cdn.poehali.dev/files/0ba2abcc-c1af-430a-a733-c74130bcd172.jpeg',
+    '3Д': 'https://cdn.poehali.dev/files/9ea05237-081b-49d2-b679-16239c11094b.jpeg',
+    '3Е': 'https://cdn.poehali.dev/files/30fb22f1-371b-4b39-8ab7-0b6277409a18.jpeg',
+    '4А': 'https://cdn.poehali.dev/files/e4360b0c-6ba8-425f-8738-7f5010ee4f0e.jpeg',
+    '4Б': 'https://cdn.poehali.dev/files/4156ee72-c255-4137-a7c1-280944fe7781.jpeg'
   };
 
   const isFirstToFourthGrade = () => {

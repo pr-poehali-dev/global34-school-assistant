@@ -99,14 +99,51 @@ export const useChat = () => {
 
     setMessages([...messages, userMessage]);
 
-    const globertResponse: Message = {
-      id: messages.length + 2,
-      text: getGlobertResponse(inputMessage),
-      sender: 'globert',
-      timestamp: new Date()
-    };
-    
-    setMessages(prev => [...prev, globertResponse]);
+    try {
+      const recentMessages = messages.slice(-5).map(msg => ({
+        role: msg.sender === 'user' ? 'user' : 'assistant',
+        content: msg.text
+      }));
+
+      const response = await fetch('https://functions.poehali.dev/7a46731d-8dc9-4dc2-b3f6-6e61f62d299d', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          messages: [
+            ...recentMessages,
+            { role: 'user', content: inputMessage }
+          ],
+          userName: userName
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const aiResponse = data.response || getGlobertResponse(inputMessage);
+        
+        const globertResponse: Message = {
+          id: messages.length + 2,
+          text: aiResponse,
+          sender: 'globert',
+          timestamp: new Date()
+        };
+        
+        setMessages(prev => [...prev, globertResponse]);
+      } else {
+        throw new Error('API error');
+      }
+    } catch (error) {
+      const fallbackResponse: Message = {
+        id: messages.length + 2,
+        text: getGlobertResponse(inputMessage),
+        sender: 'globert',
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, fallbackResponse]);
+    }
   };
 
   const clearHistory = () => {

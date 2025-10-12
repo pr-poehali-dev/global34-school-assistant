@@ -1,0 +1,20 @@
+{
+  "tests": [
+    {
+      "name": "Test chat endpoint with messages",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "messages": [
+          {"role": "user", "content": "Привет"}
+        ],
+        "userName": "Тестовый пользователь"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "response": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
