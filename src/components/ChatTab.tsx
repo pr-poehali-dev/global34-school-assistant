@@ -21,6 +21,7 @@ interface ChatTabProps {
   isListening: boolean;
   userName: string;
   clearHistory: () => void;
+  isTyping?: boolean;
 }
 
 const ChatTab = ({
@@ -31,7 +32,8 @@ const ChatTab = ({
   startVoiceRecognition,
   isListening,
   userName,
-  clearHistory
+  clearHistory,
+  isTyping = false
 }: ChatTabProps) => {
   return (
     <Card className="shadow-xl border-0 overflow-hidden">
@@ -81,6 +83,23 @@ const ChatTab = ({
                 </div>
               </div>
             ))}
+            {isTyping && (
+              <div className="flex justify-start animate-fade-in">
+                <div className="max-w-[80%] rounded-2xl p-4 shadow-md bg-white border border-gray-200">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-6 h-6 bg-gradient-to-br from-blue-600 to-sky-500 rounded-full flex items-center justify-center">
+                      <Icon name="Bot" size={14} className="text-white" />
+                    </div>
+                    <span className="font-semibold text-sm text-gray-700">Глоберт</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0ms'}}></div>
+                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '150ms'}}></div>
+                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '300ms'}}></div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </ScrollArea>
         <div className="p-4 bg-gray-50 border-t">

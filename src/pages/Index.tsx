@@ -36,7 +36,7 @@ const Index = () => {
     { id: 15, title: '255 лет со дня рождения И.Ф. Крузенштерна', date: '19 ноября' }
   ]);
 
-  const { messages, userName, handleSendMessage, clearHistory } = useChat();
+  const { messages, userName, handleSendMessage, clearHistory, isTyping } = useChat();
   const { isListening, startVoiceRecognition } = useVoiceRecognition((transcript) => {
     setInputMessage(transcript);
   });
@@ -77,7 +77,12 @@ const Index = () => {
     '4Г': 'https://cdn.poehali.dev/files/a7bbfc51-313b-43d9-aadb-634f8157add2.jpeg',
     '4Д': 'https://cdn.poehali.dev/files/8dd77305-a749-46a6-8747-f749b3e3cf7c.jpeg',
     '4Е': 'https://cdn.poehali.dev/files/1faa6431-1835-434a-b703-0974c0e2e244.jpeg',
-    '5А': 'https://cdn.poehali.dev/files/7b12fe3f-6480-4758-aaad-ad7cf36b4503.jpeg'
+    '5А': 'https://cdn.poehali.dev/files/7b12fe3f-6480-4758-aaad-ad7cf36b4503.jpeg',
+    '5Б': 'https://cdn.poehali.dev/files/2fc0f963-39c3-41d7-8301-bde1b8c795f7.jpeg',
+    '5В': 'https://cdn.poehali.dev/files/3fd56561-9a3f-46d8-a51e-8080fe02e39b.jpeg',
+    '5Г': 'https://cdn.poehali.dev/files/1d78659a-4677-4a3b-954c-488db63e46bc.jpeg',
+    '5Д': 'https://cdn.poehali.dev/files/1f5aac55-19be-46bb-bb8d-8cbeb1028c0e.jpeg',
+    '5Е': 'https://cdn.poehali.dev/files/4001fd0c-25a3-4e5b-8b3c-c50fc6c41752.jpeg'
   };
 
   const isFirstToFourthGrade = () => {
@@ -123,6 +128,7 @@ const Index = () => {
               isListening={isListening}
               userName={userName}
               clearHistory={clearHistory}
+              isTyping={isTyping}
             />
           </TabsContent>
 

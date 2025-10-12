@@ -36,15 +36,17 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'isBase64Encoded': False
         }
     
-    api_key = os.environ.get('DEEPSEEK_API_KEY', '')
-    if not api_key:
+    deepseek_key = os.environ.get('DEEPSEEK_API_KEY', '')
+    openai_key = os.environ.get('OPENAI_API_KEY', '')
+    
+    if not deepseek_key and not openai_key:
         return {
             'statusCode': 500,
             'headers': {
                 'Content-Type': 'application/json',
                 'Access-Control-Allow-Origin': '*'
             },
-            'body': json.dumps({'error': 'API key not configured'}),
+            'body': json.dumps({'error': 'No API keys configured'}),
             'isBase64Encoded': False
         }
     
@@ -65,23 +67,39 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     system_message = f"Ты - Глоберт, дружелюбный ИИ-помощник в школе Global 34. Обращайся к пользователю по имени {user_name}. Отвечай кратко и по делу на русском языке. Помогай с вопросами о школе, расписании, учебе, домашних заданиях."
     
-    deepseek_messages = [{'role': 'system', 'content': system_message}] + messages
+    ai_messages = [{'role': 'system', 'content': system_message}] + messages
     
     try:
-        response = requests.post(
-            'https://api.deepseek.com/chat/completions',
-            headers={
-                'Authorization': f'Bearer {api_key}',
-                'Content-Type': 'application/json'
-            },
-            json={
-                'model': 'deepseek-chat',
-                'messages': deepseek_messages,
-                'temperature': 0.7,
-                'max_tokens': 500
-            },
-            timeout=10
-        )
+        if openai_key:
+            response = requests.post(
+                'https://api.openai.com/v1/chat/completions',
+                headers={
+                    'Authorization': f'Bearer {openai_key}',
+                    'Content-Type': 'application/json'
+                },
+                json={
+                    'model': 'gpt-4o-mini',
+                    'messages': ai_messages,
+                    'temperature': 0.7,
+                    'max_tokens': 500
+                },
+                timeout=15
+            )
+        else:
+            response = requests.post(
+                'https://api.deepseek.com/chat/completions',
+                headers={
+                    'Authorization': f'Bearer {deepseek_key}',
+                    'Content-Type': 'application/json'
+                },
+                json={
+                    'model': 'deepseek-chat',
+                    'messages': ai_messages,
+                    'temperature': 0.7,
+                    'max_tokens': 500
+                },
+                timeout=15
+            )
         
         if response.status_code != 200:
             return {
@@ -90,7 +108,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'Content-Type': 'application/json',
                     'Access-Control-Allow-Origin': '*'
                 },
-                'body': json.dumps({'error': f'DeepSeek API error: {response.text}'}),
+                'body': json.dumps({'error': f'API error: {response.text}'}),
                 'isBase64Encoded': False
             }
         

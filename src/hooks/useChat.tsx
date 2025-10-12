@@ -32,6 +32,8 @@ export const useChat = () => {
     return localStorage.getItem('user_name') || '';
   });
 
+  const [isTyping, setIsTyping] = useState(false);
+
   useEffect(() => {
     localStorage.setItem('chat_history', JSON.stringify(messages));
   }, [messages]);
@@ -98,6 +100,7 @@ export const useChat = () => {
     };
 
     setMessages([...messages, userMessage]);
+    setIsTyping(true);
 
     try {
       const recentMessages = messages.slice(-5).map(msg => ({
@@ -143,6 +146,8 @@ export const useChat = () => {
       };
       
       setMessages(prev => [...prev, fallbackResponse]);
+    } finally {
+      setIsTyping(false);
     }
   };
 
@@ -164,6 +169,7 @@ export const useChat = () => {
     messages,
     userName,
     handleSendMessage,
-    clearHistory
+    clearHistory,
+    isTyping
   };
 };
