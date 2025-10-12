@@ -53,11 +53,16 @@ const Index = () => {
   const schedule = schedulesByClass[selectedClass] || schedulesByClass['5А'];
 
   const scheduleImages: Record<string, string> = {
+    '1А': 'https://cdn.poehali.dev/files/af91e519-f74c-44d7-842b-affccb4f6e29.jpeg',
     '1Б': 'https://cdn.poehali.dev/files/bdd55cf8-7dae-431b-94ab-cfb3bf103b0d.jpeg',
     '1В': 'https://cdn.poehali.dev/files/8b4ca682-cb27-48f2-9033-fdd63a011ae9.jpeg',
     '1Г': 'https://cdn.poehali.dev/files/bbe96489-5c80-415b-a87d-62f2b0ead6a0.jpeg',
     '1Д': 'https://cdn.poehali.dev/files/8455c65c-69cf-46cf-a07a-9086e9354155.jpeg',
-    '1Е': 'https://cdn.poehali.dev/files/349d5bbc-19ee-46d1-a07f-c830f75a254d.jpeg'
+    '1Е': 'https://cdn.poehali.dev/files/349d5bbc-19ee-46d1-a07f-c830f75a254d.jpeg',
+    '2А': 'https://cdn.poehali.dev/files/66384fee-5f7e-460a-bcf7-8819d55a03ee.jpeg',
+    '2Б': 'https://cdn.poehali.dev/files/5997beee-8bde-4d5d-81a2-63a945ea37be.jpeg',
+    '2В': 'https://cdn.poehali.dev/files/af94cbbc-2c11-4ac2-b7d0-b36fbb0d4c2a.jpeg',
+    '2Г': 'https://cdn.poehali.dev/files/10c3c12b-5bf5-4ac2-b852-483153acf25b.jpeg'
   };
 
   const isFirstToFourthGrade = () => {

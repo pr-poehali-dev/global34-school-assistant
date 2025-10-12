@@ -99,14 +99,58 @@ export const useChat = () => {
 
     setMessages([...messages, userMessage]);
 
-    const globertResponse: Message = {
-      id: messages.length + 2,
-      text: `${userName ? `${userName}, ` : ''}извините, но в данный момент я не могу ответить на ваш вопрос.`,
-      sender: 'globert',
-      timestamp: new Date()
-    };
-    
-    setMessages(prev => [...prev, globertResponse]);
+    try {
+      const response = await fetch('https://api.deepseek.com/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'deepseek-chat',
+          messages: [
+            {
+              role: 'system',
+              content: `Ты - Глоберт, дружелюбный ИИ-помощник в школе Global 34. Обращайся к пользователю по имени ${userName}. Отвечай кратко и по делу на русском языке. Помогай с вопросами о школе, расписании, учебе.`
+            },
+            ...messages.slice(-5).map(msg => ({
+              role: msg.sender === 'user' ? 'user' : 'assistant',
+              content: msg.text
+            })),
+            {
+              role: 'user',
+              content: inputMessage
+            }
+          ],
+          temperature: 0.7,
+          max_tokens: 500
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const aiResponse = data.choices[0]?.message?.content || getGlobertResponse(inputMessage);
+        
+        const globertResponse: Message = {
+          id: messages.length + 2,
+          text: aiResponse,
+          sender: 'globert',
+          timestamp: new Date()
+        };
+        
+        setMessages(prev => [...prev, globertResponse]);
+      } else {
+        throw new Error('API error');
+      }
+    } catch (error) {
+      const fallbackResponse: Message = {
+        id: messages.length + 2,
+        text: getGlobertResponse(inputMessage),
+        sender: 'globert',
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, fallbackResponse]);
+    }
   };
 
   const clearHistory = () => {
