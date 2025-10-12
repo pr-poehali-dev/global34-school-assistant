@@ -21,7 +21,7 @@ const ScheduleImageView = ({
     const grade = parseInt(cls.charAt(0));
     return grade >= 1 && grade <= 4;
   });
-  const hasImage = scheduleImages[selectedClass];
+  const hasImage = Boolean(scheduleImages[selectedClass]);
 
   return (
     <Card className="shadow-xl border-0">

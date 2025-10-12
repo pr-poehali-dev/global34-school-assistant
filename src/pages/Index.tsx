@@ -8,6 +8,7 @@ import NewsTab from '@/components/NewsTab';
 import { useChat } from '@/hooks/useChat';
 import { useVoiceRecognition } from '@/hooks/useVoiceRecognition';
 import { schedulesByClass, classes } from '@/data/scheduleData';
+import ScheduleImageView from '@/components/ScheduleImageView';
 
 interface EventItem {
   id: number;
@@ -51,11 +52,24 @@ const Index = () => {
 
   const schedule = schedulesByClass[selectedClass] || schedulesByClass['5А'];
 
+  const scheduleImages: Record<string, string> = {
+    '1Б': 'https://cdn.poehali.dev/files/bdd55cf8-7dae-431b-94ab-cfb3bf103b0d.jpeg',
+    '1В': 'https://cdn.poehali.dev/files/8b4ca682-cb27-48f2-9033-fdd63a011ae9.jpeg',
+    '1Г': 'https://cdn.poehali.dev/files/bbe96489-5c80-415b-a87d-62f2b0ead6a0.jpeg',
+    '1Д': 'https://cdn.poehali.dev/files/8455c65c-69cf-46cf-a07a-9086e9354155.jpeg',
+    '1Е': 'https://cdn.poehali.dev/files/349d5bbc-19ee-46d1-a07f-c830f75a254d.jpeg'
+  };
+
+  const isFirstToFourthGrade = () => {
+    const grade = parseInt(selectedClass.charAt(0));
+    return grade >= 1 && grade <= 4;
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-sky-50 to-blue-100 relative">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-sky-50 to-blue-100 flex">
       <GlobertSidebar userName={userName} />
 
-      <div className="relative z-10 p-4 md:p-6">
+      <div className="flex-1 p-4 md:p-6">
         <header className="mb-6 text-center animate-fade-in">
           <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-600 to-sky-500 bg-clip-text text-transparent">
             Школа Global 34
@@ -93,14 +107,23 @@ const Index = () => {
           </TabsContent>
 
           <TabsContent value="schedule" className="animate-fade-in">
-            <ScheduleTab
-              selectedClass={selectedClass}
-              setSelectedClass={setSelectedClass}
-              activeDay={activeDay}
-              setActiveDay={setActiveDay}
-              schedule={schedule}
-              classes={classes}
-            />
+            {isFirstToFourthGrade() ? (
+              <ScheduleImageView
+                selectedClass={selectedClass}
+                setSelectedClass={setSelectedClass}
+                classes={classes}
+                scheduleImages={scheduleImages}
+              />
+            ) : (
+              <ScheduleTab
+                selectedClass={selectedClass}
+                setSelectedClass={setSelectedClass}
+                activeDay={activeDay}
+                setActiveDay={setActiveDay}
+                schedule={schedule}
+                classes={classes}
+              />
+            )}
           </TabsContent>
 
           <TabsContent value="events" className="animate-fade-in">
