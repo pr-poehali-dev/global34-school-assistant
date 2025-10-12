@@ -52,10 +52,10 @@ const Index = () => {
   const schedule = schedulesByClass[selectedClass] || schedulesByClass['5А'];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-sky-50 to-blue-100 flex">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-sky-50 to-blue-100 relative">
       <GlobertSidebar userName={userName} />
 
-      <div className="flex-1 p-4 md:p-6">
+      <div className="relative z-10 p-4 md:p-6">
         <header className="mb-6 text-center animate-fade-in">
           <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-600 to-sky-500 bg-clip-text text-transparent">
             Школа Global 34

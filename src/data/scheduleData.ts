@@ -8,39 +8,109 @@ interface ScheduleItem {
 export const schedulesByClass: Record<string, Record<string, ScheduleItem[]>> = {
   '1А': {
     понедельник: [
-      { time: '08:00 - 08:40', subject: 'РазвОР', teacher: 'Семенова С.А.', room: '1' },
-      { time: '08:50 - 09:30', subject: 'Лит-т', teacher: 'Семенова С.А.', room: '1' },
-      { time: '09:50 - 10:30', subject: 'Матем', teacher: 'Семенова С.А.', room: '1' },
-      { time: '10:50 - 11:30', subject: 'Труд', teacher: 'Семенова С.А.', room: '1' },
-      { time: '11:45 - 12:25', subject: 'Лит-т', teacher: 'Семенова С.А.', room: '1' }
+      { time: '08:00 - 08:40', subject: 'Разговор о важном', teacher: '', room: '2.9' },
+      { time: '08:50 - 09:30', subject: 'Русский язык', teacher: '', room: '2.9' },
+      { time: '09:50 - 10:30', subject: 'Математика', teacher: '', room: '2.9' },
+      { time: '10:50 - 11:30', subject: 'Труд', teacher: '', room: '2.9' },
+      { time: '11:45 - 12:25', subject: 'Литературное чтение', teacher: '', room: '2.9' }
     ],
     вторник: [
-      { time: '08:00 - 08:40', subject: 'ОРЛ', teacher: '', room: '1' },
-      { time: '08:50 - 09:30', subject: 'Физ-ра', teacher: 'Семенова М.Ю.', room: '1' },
-      { time: '09:50 - 10:30', subject: 'Рус.яз', teacher: 'Семенова С.А.', room: '1' },
-      { time: '10:50 - 11:30', subject: 'Матем', teacher: 'Семенова С.А.', room: '1' },
-      { time: '11:45 - 12:25', subject: 'Окр.мир', teacher: 'Семенова С.А.', room: '1' }
+      { time: '08:00 - 08:40', subject: 'Орлята России', teacher: '', room: '2.9' },
+      { time: '08:50 - 09:30', subject: 'Физкультура', teacher: '', room: '' },
+      { time: '09:50 - 10:30', subject: 'Русский язык', teacher: '', room: '2.9' },
+      { time: '10:50 - 11:30', subject: 'Математика', teacher: '', room: '2.9' },
+      { time: '11:45 - 12:25', subject: 'Окружающий мир', teacher: '', room: '2.9' }
     ],
     среда: [
-      { time: '08:00 - 08:40', subject: 'Матем', teacher: 'Семенова С.А.', room: '1' },
-      { time: '08:50 - 09:30', subject: 'Рус.яз', teacher: 'Семенова С.А.', room: '1' },
-      { time: '09:50 - 10:30', subject: 'Музыка', teacher: 'Семенова М.Ю.', room: '1' },
-      { time: '10:50 - 11:30', subject: 'Рус.яз', teacher: 'Семенова С.А.', room: '1' },
-      { time: '11:45 - 12:25', subject: 'Физ-ра', teacher: 'Семенова С.А.', room: '1' }
+      { time: '08:00 - 08:40', subject: 'Литературное чтение', teacher: '', room: '2.9' },
+      { time: '08:50 - 09:30', subject: 'Математика', teacher: '', room: '2.9' },
+      { time: '09:50 - 10:30', subject: 'Русский язык', teacher: '', room: '2.9' },
+      { time: '10:50 - 11:30', subject: 'Окружающий мир', teacher: '', room: '2.9' },
+      { time: '11:45 - 12:25', subject: 'Физкультура', teacher: '', room: '2.9' }
     ],
     четверг: [
-      { time: '08:00 - 08:40', subject: 'Лит-т', teacher: 'Семенова С.А.', room: '1' },
-      { time: '08:50 - 09:30', subject: 'Физ-ра', teacher: 'Семенова С.А.', room: '1' },
-      { time: '09:50 - 10:30', subject: 'Матем', teacher: 'Семенова С.А.', room: '1' },
-      { time: '10:50 - 11:30', subject: 'Окр.мир', teacher: 'Семенова С.А.', room: '1' },
-      { time: '11:45 - 12:25', subject: 'Физ-ра', teacher: 'Семенова С.А.', room: '1' }
+      { time: '08:00 - 08:40', subject: 'ФГ', teacher: '', room: '2.9' },
+      { time: '08:50 - 09:30', subject: 'Физкультура', teacher: '', room: '' },
+      { time: '09:50 - 10:30', subject: 'Русский язык', teacher: '', room: '2.9' },
+      { time: '10:50 - 11:30', subject: 'Математика', teacher: '', room: '2.9' },
+      { time: '11:45 - 12:25', subject: 'Литература', teacher: '', room: '2.9' }
     ],
     пятница: [
-      { time: '08:00 - 08:40', subject: 'ИЗО', teacher: '', room: '1' },
-      { time: '08:50 - 09:30', subject: 'Рус.яз', teacher: 'Семенова С.А.', room: '1' },
-      { time: '09:50 - 10:30', subject: 'Лит-т', teacher: 'Семенова С.А.', room: '1' },
-      { time: '10:50 - 11:30', subject: 'Матем', teacher: 'Семенова С.А.', room: '1' },
-      { time: '11:45 - 12:25', subject: 'Окр.мир', teacher: 'Семенова С.А.', room: '1' }
+      { time: '08:00 - 08:40', subject: 'Русский язык', teacher: '', room: '2.9' },
+      { time: '08:50 - 09:30', subject: 'Литература', teacher: '', room: '2.9' },
+      { time: '09:50 - 10:30', subject: 'Музыка', teacher: '', room: '2.9' }
+    ]
+  },
+  '1Б': {
+    понедельник: [
+      { time: '08:00 - 08:40', subject: 'Разговоры о важном', teacher: '', room: '3.10' },
+      { time: '08:50 - 09:30', subject: 'Русский язык', teacher: '', room: '3.10' },
+      { time: '09:50 - 10:30', subject: 'Математика', teacher: '', room: '3.10' },
+      { time: '10:50 - 11:30', subject: 'Литература', teacher: '', room: '3.10' }
+    ],
+    вторник: [
+      { time: '08:00 - 08:40', subject: 'Орлята России', teacher: '', room: '3.10' },
+      { time: '08:50 - 09:30', subject: 'Русский язык', teacher: '', room: '3.10' },
+      { time: '09:50 - 10:30', subject: 'Математика', teacher: '', room: '3.9' },
+      { time: '10:50 - 11:30', subject: 'Литературное чтение', teacher: '', room: '3.9' },
+      { time: '11:45 - 12:25', subject: 'Труд', teacher: '', room: '3.9' }
+    ],
+    среда: [
+      { time: '08:00 - 08:40', subject: 'Русский язык', teacher: '', room: '3.9' },
+      { time: '08:50 - 09:30', subject: 'Математика', teacher: '', room: '3.9' },
+      { time: '09:50 - 10:30', subject: 'Литературное чтение', teacher: '', room: '3.9' },
+      { time: '10:50 - 11:30', subject: 'Физкультура', teacher: '', room: '3.10' },
+      { time: '11:45 - 12:25', subject: 'Окружающий мир', teacher: '', room: '3.10' }
+    ],
+    четверг: [
+      { time: '08:00 - 08:40', subject: 'ФГ', teacher: '', room: '3.10' },
+      { time: '08:50 - 09:30', subject: 'Музыка', teacher: '', room: '3.10' },
+      { time: '09:50 - 10:30', subject: 'Русский язык', teacher: '', room: '3.10' },
+      { time: '10:50 - 11:30', subject: 'Физкультура', teacher: '', room: '' },
+      { time: '11:45 - 12:25', subject: 'Окружающий мир', teacher: '', room: '3.10' }
+    ],
+    пятница: [
+      { time: '08:00 - 08:40', subject: 'Литературное чтение', teacher: '', room: '3.10' },
+      { time: '08:50 - 09:30', subject: 'ИЗО', teacher: '', room: '3.10' },
+      { time: '09:50 - 10:30', subject: 'Математика', teacher: '', room: '3.10' },
+      { time: '10:50 - 11:30', subject: 'Физкультура', teacher: '', room: '' },
+      { time: '11:45 - 12:25', subject: 'Русский язык', teacher: '', room: '3.10' }
+    ]
+  },
+  '1В': {
+    понедельник: [
+      { time: '08:00 - 08:40', subject: 'Разговор о важном', teacher: '', room: '3.13' },
+      { time: '08:50 - 09:30', subject: 'Литературное чтение', teacher: '', room: '3.13' },
+      { time: '09:50 - 10:30', subject: 'Математика', teacher: '', room: '3.13' },
+      { time: '10:50 - 11:30', subject: 'Труд', teacher: '', room: '3.13' },
+      { time: '11:45 - 12:25', subject: 'Русский язык', teacher: '', room: '3.13' }
+    ],
+    вторник: [
+      { time: '08:00 - 08:40', subject: 'Орлята России', teacher: '', room: '3.13' },
+      { time: '08:50 - 09:30', subject: 'Математика', teacher: '', room: '3.13' },
+      { time: '09:50 - 10:30', subject: 'Физкультура', teacher: '', room: '' },
+      { time: '10:50 - 11:30', subject: 'Русский язык', teacher: '', room: '3.13' },
+      { time: '11:45 - 12:25', subject: 'Окружающий мир', teacher: '', room: '3.13' }
+    ],
+    среда: [
+      { time: '08:00 - 08:40', subject: 'Математика', teacher: '', room: '3.13' },
+      { time: '08:50 - 09:30', subject: 'Русский язык', teacher: '', room: '3.13' },
+      { time: '09:50 - 10:30', subject: 'Музыка', teacher: '', room: '3.13' },
+      { time: '10:50 - 11:30', subject: 'Окружающий мир', teacher: '', room: '3.13' },
+      { time: '11:45 - 12:25', subject: 'Литературное чтение', teacher: '', room: '3.13' }
+    ],
+    четверг: [
+      { time: '08:00 - 08:40', subject: 'ФГ', teacher: '', room: '3.13' },
+      { time: '08:50 - 09:30', subject: 'Математика', teacher: '', room: '3.13' },
+      { time: '09:50 - 10:30', subject: 'Русский язык', teacher: '', room: '3.13' },
+      { time: '10:50 - 11:30', subject: 'Литературное чтение', teacher: '', room: '3.13' },
+      { time: '11:45 - 12:25', subject: 'Физкультура', teacher: '', room: '3.13' }
+    ],
+    пятница: [
+      { time: '08:00 - 08:40', subject: 'Русский язык', teacher: '', room: '3.13' },
+      { time: '08:50 - 09:30', subject: 'Физкультура', teacher: '', room: '' },
+      { time: '09:50 - 10:30', subject: 'ИЗО', teacher: '', room: '3.13' },
+      { time: '10:50 - 11:30', subject: 'Литературное чтение', teacher: '', room: '3.13' }
     ]
   },
   '5А': {
