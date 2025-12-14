@@ -108,7 +108,7 @@ export const useChat = () => {
         content: msg.text
       }));
 
-      const response = await fetch('https://functions.poehali.dev/7a46731d-8dc9-4dc2-b3f6-6e61f62d299d', {
+      const response = await fetch('https://functions.poehali.dev/1386c7ff-146f-4053-b3ce-cd5539a1d521', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
