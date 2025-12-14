@@ -3,12 +3,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Icon from '@/components/ui/icon';
 import GlobertSidebar from '@/components/GlobertSidebar';
 import ChatTab from '@/components/ChatTab';
-import ScheduleTab from '@/components/ScheduleTab';
-import NewsTab from '@/components/NewsTab';
+import EditableSchedule from '@/components/EditableSchedule';
+import EditableNewsTab from '@/components/EditableNewsTab';
 import { useChat } from '@/hooks/useChat';
 import { useVoiceRecognition } from '@/hooks/useVoiceRecognition';
 import { schedulesByClass, classes } from '@/data/scheduleData';
-import ScheduleImageView from '@/components/ScheduleImageView';
+
 
 interface EventItem {
   id: number;
@@ -20,7 +20,12 @@ const Index = () => {
   const [inputMessage, setInputMessage] = useState('');
   const [activeDay, setActiveDay] = useState('понедельник');
   const [selectedClass, setSelectedClass] = useState('5А');
-  const [events] = useState<EventItem[]>([
+  const [events, setEvents] = useState<EventItem[]>(() => {
+    const saved = localStorage.getItem('edited_events');
+    if (saved) {
+      return JSON.parse(saved);
+    }
+    return [
     { id: 1, title: 'День добра и уважения', date: '1 октября' },
     { id: 2, title: 'День музыки', date: '2 октября' },
     { id: 3, title: 'День Учителя', date: '3 октября' },
@@ -34,7 +39,8 @@ const Index = () => {
     { id: 13, title: '295 лет со дня рождения А.В. Суворова', date: '13 ноября' },
     { id: 14, title: 'День ракетных войск и артиллерии', date: '19 ноября' },
     { id: 15, title: '255 лет со дня рождения И.Ф. Крузенштерна', date: '19 ноября' }
-  ]);
+  ];
+  });
 
   const { messages, userName, handleSendMessage, clearHistory, isTyping } = useChat();
   const { isListening, startVoiceRecognition } = useVoiceRecognition((transcript) => {
@@ -50,7 +56,10 @@ const Index = () => {
 
 
 
-  const schedule = schedulesByClass[selectedClass] || schedulesByClass['5А'];
+  const savedSchedule = localStorage.getItem('edited_schedule');
+  const schedule = savedSchedule 
+    ? JSON.parse(savedSchedule)[selectedClass] || schedulesByClass[selectedClass] || schedulesByClass['5А']
+    : schedulesByClass[selectedClass] || schedulesByClass['5А'];
 
   const scheduleImages: Record<string, string> = {
     '1А': 'https://cdn.poehali.dev/files/af91e519-f74c-44d7-842b-affccb4f6e29.jpeg',
@@ -97,7 +106,7 @@ const Index = () => {
       <div className="flex-1 p-4 md:p-6">
         <header className="mb-6 text-center animate-fade-in">
           <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-600 to-sky-500 bg-clip-text text-transparent">
-            Школа Global 34
+            Школа №34 города Липецка
           </h1>
           <p className="text-gray-600 text-lg mt-2">Умная платформа для учеников</p>
         </header>
@@ -133,7 +142,7 @@ const Index = () => {
           </TabsContent>
 
           <TabsContent value="schedule" className="animate-fade-in">
-            <ScheduleImageView
+            <EditableSchedule
               selectedClass={selectedClass}
               setSelectedClass={setSelectedClass}
               classes={classes}
@@ -145,8 +154,9 @@ const Index = () => {
           </TabsContent>
 
           <TabsContent value="events" className="animate-fade-in">
-            <NewsTab
+            <EditableNewsTab
               events={events}
+              setEvents={setEvents}
             />
           </TabsContent>
         </Tabs>
